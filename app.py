@@ -4,7 +4,7 @@ from openai import OpenAI
 import os
 from streamlit_geolocation import streamlit_geolocation
 
-# 页面基础配置
+# ================= 页面基础配置 =================
 st.set_page_config(page_title="赛博堪舆大师 | AI风水", page_icon="☯️", layout="centered")
 
 # 图像转 Base64 的辅助函数 (大模型视觉接口需要)
@@ -17,17 +17,21 @@ def main():
 
     # ================= 侧边栏：引擎配置 =================
     with st.sidebar:
-        st.header("⚙️ 引擎配置")
-        # 这里可以直接读取系统的环境变量，或者让用户手动输入
-        api_key = st.text_input("OpenRouter API Key (必填):", type="password", value=os.getenv("OPENROUTER_API_KEY", ""))
+        st.header("⚙️ 引擎配置 (Google Gemini版)")
+        st.markdown("本项目由 Google Gemini 提供视觉算力支持。")
+        
+        # 输入 Google AI Studio 申请的 API Key
+        api_key = st.text_input("Google API Key (AIza开头):", type="password")
+        
+        # 模型选择改为 Gemini 家族
         model_choice = st.selectbox(
             "选择推演大模型:", 
             [
-                "anthropic/claude-3.5-sonnet", # 逻辑最强，略贵
-                "openai/gpt-4o-mini"           # 极其便宜，适合引流
+                "gemini-1.5-flash", # 每天1500次免费，速度极快
+                "gemini-1.5-pro"    # 每天50次免费，逻辑推理最深
             ]
         )
-        st.caption("注：所选模型必须支持多模态视觉能力 (Vision)。")
+        st.caption("提示：Flash 适合快速测算，Pro 适合深度看图找细节。")
 
     # ================= 1. 获取外局 (GPS 寻龙) =================
     st.subheader("📍 第一步：外局寻龙 (GPS测位)")
@@ -60,7 +64,7 @@ def main():
     # ================= 3. 核心引擎 (大模型推理) =================
     if st.button("🔮 开始全息堪舆推演", type="primary", use_container_width=True):
         if not api_key:
-            st.error("⚠️ 请在左侧侧边栏输入 API Key 以启动引擎！")
+            st.error("⚠️ 请在左侧侧边栏输入 Google API Key 以启动引擎！")
             return
         if uploaded_file is None:
             st.error("⚠️ 请先上传内局照片，否则大师无法观形！")
@@ -68,10 +72,10 @@ def main():
 
         with st.spinner("天地交泰，大师正在运算气场，请稍候..."):
             try:
-                # 伪装成 OpenAI 客户端，但指向 OpenRouter 的网关
+                # 核心魔法：使用 OpenAI 官方库，但把网址指向 Google 的服务器！
                 client = OpenAI(
-                    base_url="https://openrouter.ai/api/v1",
                     api_key=api_key,
+                    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
                 )
 
                 # 将图片转码
