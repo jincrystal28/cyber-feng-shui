@@ -8,6 +8,7 @@ from streamlit_geolocation import streamlit_geolocation
 st.set_page_config(page_title="赛博堪舆大师 | AI全息风水", page_icon="☯️", layout="centered")
 
 # ================= 🎨 视觉升级：黑金赛博玄学风 CSS =================
+# ================= 🎨 视觉升级：黑金赛博玄学风 CSS =================
 st.markdown("""
 <style>
     /* 全局暗黑背景与柔和灰白文字 */
@@ -18,7 +19,13 @@ st.markdown("""
     /* 所有的标题强制变为暗金色 */
     h1, h2, h3, h4, h5, h6 {
         color: #D4AF37 !important;
-        font-family: 'STXingkai', 'KaiTi', serif; /* 尝试调用毛笔字体 */
+        font-family: 'STXingkai', 'KaiTi', serif; 
+    }
+    /* 🌟 新增修复：强制把输入框上面的提示文字（那三行字）提亮，并稍微加粗 */
+    label {
+        color: #E0E0E0 !important;
+        font-weight: 500 !important;
+        font-size: 15px !important;
     }
     /* 主按钮（推演按钮）黑金特效 */
     .stButton>button[kind="primary"] {
