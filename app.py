@@ -27,8 +27,8 @@ def main():
         model_choice = st.selectbox(
             "选择推演大模型:", 
             [
-                "gemini-1.5-flash", # 每天1500次免费，速度极快
-                "gemini-1.5-pro"    # 每天50次免费，逻辑推理最深
+               "gemini-2.5-flash", # 最新款：速度极快，每天1500次免费
+                "gemini-2.5-pro"    # 最新款：逻辑推理最深，每天50次免费
             ]
         )
         st.caption("提示：Flash 适合快速测算，Pro 适合深度看图找细节。")
