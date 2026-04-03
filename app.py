@@ -27,38 +27,76 @@ def encode_image(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode('utf-8')
 
 def scan_nearby_fengshui_pois(lat, lon, radius=500):
+    """
+    免费调用 OSM API 进阶版：扫描建筑、山脉、水系、道路（虚水）、村落。
+    """
     overpass_url = "http://overpass-api.de/api/interpreter"
+    
+    # 【核心升级】使用 nwr (node, way, relation) 抓取所有形态，并加入道路(highway)、山脉(peak)、村落(place)
     overpass_query = f"""
-    [out:json];
+    [out:json][timeout:10];
     (
-      node["amenity"~"hospital|clinic|police|bank|courthouse|marketplace|school"](around:{radius},{lat},{lon});
-      node["waterway"](around:{radius},{lat},{lon});
-      node["natural"~"water|wood"](around:{radius},{lat},{lon});
+      nwr["amenity"~"hospital|clinic|police|bank|courthouse|marketplace|school|place_of_worship"](around:{radius},{lat},{lon});
+      nwr["waterway"](around:{radius},{lat},{lon});
+      nwr["natural"~"water|wood|peak|ridge|hill"](around:{radius},{lat},{lon});
+      nwr["highway"~"motorway|trunk|primary|secondary|residential"](around:{radius},{lat},{lon});
+      nwr["railway"](around:{radius},{lat},{lon});
+      nwr["place"~"village|hamlet|neighbourhood"](around:{radius},{lat},{lon});
     );
     out center;
     """
-    # 增加 User-Agent 防止被 API 墙掉
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+    
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) CyberFengShui/1.0'}
+    
     try:
         response = requests.get(overpass_url, params={'data': overpass_query}, headers=headers, timeout=8)
         data = response.json()
+        
         pois = []
         for element in data.get('elements', []):
             tags = element.get('tags', {})
-            name = tags.get('name', '未知设施')
+            name = tags.get('name', '')
             amenity = tags.get('amenity', '')
             waterway = tags.get('waterway', '')
             natural = tags.get('natural', '')
+            highway = tags.get('highway', '')
+            railway = tags.get('railway', '')
+            place = tags.get('place', '')
             
+            # 【细节处理】有些大马路、山头、村落没有名字，我们要给它强制命名，因为这是风水核心要素
+            if not name:
+                if highway in ['motorway', 'trunk']: name = "城市快速路"
+                elif highway in ['primary', 'secondary']: name = "主干道"
+                elif highway == 'residential': name = "小区/村镇内部路"
+                elif railway: name = "铁轨干线"
+                elif natural in ['peak', 'hill']: name = "无名山丘"
+                elif waterway: name = "无名河流/水渠"
+                else: continue # 既没名字又不是核心地形的，直接跳过
+                
+            # 【风水理论映射】将现代地理标签翻译为风水气场属性
             if amenity in ['hospital', 'clinic']: pois.append(f"{name} (偏阴/病气)")
             elif amenity in ['police', 'courthouse']: pois.append(f"{name} (极阳/孤煞)")
             elif amenity == 'bank': pois.append(f"{name} (金旺/聚财)")
             elif amenity == 'marketplace': pois.append(f"{name} (动处/聚气)")
             elif amenity == 'school': pois.append(f"{name} (文昌/阳气旺)")
-            elif waterway or natural == 'water': pois.append(f"水系/河流 (界水止气)")
-            elif natural == 'wood': pois.append(f"公园林地 (木旺生发)")
-        return list(set(pois))[:8]
+            elif amenity == 'place_of_worship': pois.append(f"{name} (宗教香火/孤气)")
+            
+            elif waterway or natural == 'water': pois.append(f"{name} (真水/界气引财)")
+            elif natural == 'wood': pois.append(f"{name} (公园林地/生发之木)")
+            elif natural in ['peak', 'ridge', 'hill']: pois.append(f"{name} (实山龙脉/靠山)")
+            
+            elif highway in ['motorway', 'trunk']: pois.append(f"{name} (大虚水/气流急易割脚)")
+            elif highway in ['primary', 'secondary']: pois.append(f"{name} (虚水干流/带动气场)")
+            elif railway: pois.append(f"{name} (铁龙脉/震动气场易生燥)")
+            
+            elif place in ['village', 'hamlet']: pois.append(f"{name} (自然村落/人丁聚气)")
+
+        # 去重，保留最多 12 个关键地形特征传给大模型
+        unique_pois = list(set(pois))
+        return unique_pois[:12]
+        
     except Exception as e:
+        return []
         return []
 
 # ================= 核心逻辑 =================
