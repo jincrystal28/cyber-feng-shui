@@ -25,7 +25,7 @@ st.markdown("""
 # ================= 辅助函数与地理雷达 =================
 def encode_image(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode('utf-8')
-
+@st.cache_data(ttl=3600, show_spinner=False)
 def scan_nearby_fengshui_pois(lat, lon, radius=500):
     overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
