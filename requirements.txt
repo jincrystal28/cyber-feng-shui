@@ -2,3 +2,4 @@ streamlit
 streamlit-geolocation
 openai
 pillow
+requests
