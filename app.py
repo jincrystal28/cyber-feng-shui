@@ -137,10 +137,10 @@ def main():
         try:
             client = OpenAI(api_key=api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
             
-            # 【终极玄学版 Prompt】：彻底剔除科学/心理学，全用阴阳五行术语
+            # 【修改点 1】：重构 Prompt，允许“打扫卫生”但必须用高级风水黑话包装，加重收费悬念的篇幅
             master_prompt = f"""
             # Role: 隐世堪舆宗师 (精通玄空飞星、八宅明镜、峦头理气)
-            你的诊断必须充满深厚的传统国学玄学底蕴。严禁使用任何“环境心理学”、“科学”、“视觉噪音”等现代词汇。一切皆由气场、五行、阴阳、形峦来解释。排版清晰。
+            你的诊断必须充满深厚的传统国学玄学底蕴。严禁使用任何现代科学或心理学词汇。一切皆由气场、五行、阴阳、形峦来解释。排版清晰。
 
             # Input Context:
             1. 地脉雷达信息：\n{geo_context}
@@ -148,17 +148,17 @@ def main():
 
             # Output Structure (不少于1000字):
             1. 📜 【禅语定势】：写一首玄妙的七言绝句，断定此局吉凶。
-            2. 🌟 【峦头理气勘验】：详细分析雷达数据中的道路、水系、建筑。使用“青龙白虎”、“朱雀玄武”、“得水藏风”、“虚水引气”等纯正风水术语，论述此地天地之气的汇聚之势，点出其蕴含的福泽与财运机缘。
+            2. 🌟 【峦头理气勘验】：分析雷达数据。使用纯正风水术语（如得水藏风、虚水引气），论述此地天地之气的汇聚之势与福泽机缘。
             3. ⚠️ 【形峦冲煞点拨】：
-               - 重点分流：仔细观察图片！如果是【户型图】，必须指出风水硬伤（如：门冲煞、缺角漏财、中宫受压、穿堂煞等）；如果是【实景图】，指出尖角煞、火煞或逼虎煞。
-               - 必须用“五行生克”（如金木交战、火炎土燥）或“气场淤滞”来解释其对居住者命理运势、财帛宫、疾厄宫的破坏。
-            4. 🛋️ 【顺势化解 · 借力打力】（免费化解法）：
-               - 严禁让用户打扫卫生！
-               - 必须结合照片，给出物理空间布局的调整：例如，改变床的朝向避开暗箭煞、将桌子移至文昌位、利用屏风/窗帘遮挡门冲或路冲。
-               - 用风水学解释：这样挪动是如何改变了室内的“气口”，实现了“斗转星移”之效。
-            5. 🔮 【预警与阵法契机】：
-               - 总结：物理移位仅能避一时之锐气，化解表象。
-               - 抛出诱饵：若要彻底锁住明堂财气，镇压流年大煞，逆天改命，唯有布下天地阵法，以五行法器镇守阵眼……（在此处停止，绝不说出具体法器，留下极强的付费悬念）。
+               - 重点：仔细观察图片！指出风水硬伤（门冲煞、穿堂煞、火煞、逼虎煞等）。
+               - 必须用“五行生克”或“气场淤滞”解释其对命理、财帛宫、疾厄宫的破坏。
+            4. 🛋️ 【顺势化解 · 拂拭明台】（免费化解法）：
+               - 核心要求：可以将“清理杂物、规整空间”视为“拂拭明台、疏通气脉”的高阶理气手段。
+               - 必须结合照片，给出空间物理布局的调整：如清理某处杂乱以释放青龙位，改变床/桌朝向避开暗箭煞，或利用日常物品遮挡。
+               - 必须用风水学解释：这样挪动与清理是如何改变了室内的“气口”与“风道”，实现了斗转星移之效。切忌写成普通的家政保洁！
+            5. 🔮 【天机预警与阵眼契机】：
+               - 用不少于150字的篇幅，详细描述如果不布阵，流年大煞将如何反扑，财库将如何动荡。
+               - 随后抛出诱饵：“然天无绝人之路，若要彻底锁住明堂财气，镇压流年大煞，逆天改命，唯有布下夺天地造化之大阵，以金木水火土之法器镇守特定阵眼……”（在此处戛然而止，绝不说出具体法器，留下极强的付费悬念）。
             """
             
             content_list = [{"type": "text", "text": master_prompt}]
@@ -177,20 +177,18 @@ def main():
                     report_placeholder.markdown(full_report + "▌")
             report_placeholder.markdown(full_report)
             
-            # ================= 变现钩子与深度阵法秘籍 =================
+            # ================= 变现钩子 =================
             st.markdown("---")
             st.warning("⚠️ 天机至此，免费推演已尽。破解死局，在乎引气布阵。")
-            st.button("💰 支付 ￥4.99 解锁《秘传化煞聚气阵法真诀》", use_container_width=True)
+            st.button("💰 支付 ￥4.99 解锁《秘传阵法：全息布阵真诀与法器落位图》", use_container_width=True)
             
+            # ================= 【修改点 2】：沉浸式付费报告交付区 (篇幅宏大，融入链接) =================
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("---")
-            st.markdown("<p style='text-align:center; color:#888; font-size:12px;'>⬇️ 以下为用户支付后解锁的【专属阵法秘籍】 ⬇️</p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; color:#888; font-size:12px;'>⬇️ 以下为用户支付 4.99 元后解锁的【专属阵法秘籍长卷】 ⬇️</p>", unsafe_allow_html=True)
             
-            array_names = ["九宫飞星聚财阵", "太极两仪化煞阵", "五行斗转星移阵", "乾坤八卦锁幽阵"]
+            array_names = ["九宫飞星聚财阵", "太极两仪化煞阵", "五行斗转星移阵", "乾坤八卦锁幽阵", "先天四象引气阵"]
             selected_array = random.choice(array_names)
-            
-            st.markdown(f"<h3 style='text-align:center; color:#2C3E50;'>📜 秘传真诀：【{selected_array}】</h3>", unsafe_allow_html=True)
-            st.markdown("<p class='array-text'>贫道夜观星象，推演贵宅格局，察觉此处气机交锋，非凡物可镇。此阵乃夺天地造化之局，需依五行生克之理，借金木水火土三位法器，分主次镇守各方阵眼。阵法大成之日，方能聚气凝神，化煞生财。以下为布阵法器与落位口诀，请依言悉心布置。</p>", unsafe_allow_html=True)
             
             # 商品库（附带玄学原理长文）
             mundane = [
@@ -205,38 +203,65 @@ def main():
                 {"name": "纯铜镇宅小貔貅", "title": "【吞金阵眼 / 核心】", "kw": "纯铜 貔貅 摆件", "place": "阵局前方，头朝门外或窗外", "desc": "貔貅乃上古吞金瑞兽，以重铜铸其形，杀气隐现。将其置于此位，不仅能迎击并咬碎对面刺来的尖角煞，更能以阵眼之力大开财门，广纳八方明财暗财。"}
             ]
             
-            # 随机选取阵法元素
             main_core = random.sample(pros, 1)[0]
             aux_cores = random.sample(mundane, 2)
             
-            # 渲染核心法器 (图文并茂的深度报告模式)
-            st.markdown("#### ⚔️ 第一步：定海神针，立主阵眼")
+            # 【生成堪舆秘籍长文】
+            st.markdown(f"<h3 style='color:#2C3E50;'>🔮 秘传真诀：【{selected_array}】</h3>", unsafe_allow_html=True)
+            
             st.markdown(f"""
-            <div style="background-color:#F4F1EA; border-left:4px solid #4A6E62; padding:15px; margin-bottom:20px;">
+            <p class='array-text'><b>【阵理玄机】</b><br>
+            观贵宅之气运交锋，寻常之物已难承其重。此【{selected_array}】乃贫道结合天地地脉与室内理气，独家推演而出的无上法门。阵法之妙，在于“一主两辅，三才合一”。借特定法器之五行灵力，锁住明堂之财，化解暗处之煞。布下此阵，犹如为家宅披上一层无形之铠甲，外邪不入，内气不泄。</p>
+            """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+            <p class='array-text'><b>⚔️ 第一步：定海神针，立主阵眼</b><br>
+            要破此局，首当其冲需镇压核心凶位。贫道推演，需以 <b style='color:#4A6E62;'>{main_core['name']}</b> 作为本局之主阵眼。此物{main_core['desc']}</p>
+            """, unsafe_allow_html=True)
+            
+            # 主阵眼带货卡片
+            st.markdown(f"""
+            <div style="background-color:#F4F1EA; border-left:4px solid #4A6E62; padding:15px; margin:10px 0 20px 0;">
                 <h5 style="margin-top:0; color:#2C3E50;">{main_core['title']} - {main_core['name']}</h5>
-                <p class='array-text'><b>【落位口诀】：</b>置于{main_core['place']}。<br><b>【堪舆妙用】：</b>{main_core['desc']}</p>
+                <p style='font-size:14px; margin-bottom:10px; color:#555;'><b>📍 落位口诀：</b>需端正安放于 {main_core['place']}。</p>
                 <a href="https://s.taobao.com/search?q={main_core['kw']}" target="_blank" style="text-decoration:none;">
-                    <button style="background-color:#4A6E62; color:#FFF; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">🔮 前往结缘法器</button>
+                    <button style="background-color:#4A6E62; color:#FFF; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; width:100%;">🔮 奉请主阵眼法器</button>
                 </a>
             </div>
             """, unsafe_allow_html=True)
-            
-            # 渲染辅阵元素
-            st.markdown("#### 🌿 第二步：五行相济，布辅阵眼")
-            st.markdown("<p class='array-text'>主阵眼虽威，亦需阴阳调和。请备齐以下两件辅器，方能令阵法生生不息：</p>", unsafe_allow_html=True)
-            
-            for item in aux_cores:
+
+            st.markdown(f"""
+            <p class='array-text'><b>🌿 第二步：五行相济，布辅阵眼</b><br>
+            主阵既立，需以五行相生之物辅佐，方能令气场流转不息，生生不绝。一为 <b style='color:#5F8B7D;'>{aux_cores[0]['name']}</b>，落位于 {aux_cores[0]['place']}，取其{aux_cores[0]['desc'].split('。')[0]}之意；二为 <b style='color:#5F8B7D;'>{aux_cores[1]['name']}</b>，安置于 {aux_cores[1]['place']}，以达阴阳调和之境。双辅齐下，生财化煞之功乃成。</p>
+            """, unsafe_allow_html=True)
+
+            # 辅阵眼带货卡片
+            col_a, col_b = st.columns(2)
+            with col_a:
                 st.markdown(f"""
-                <div style="background-color:#FFFFFF; border:1px solid #D3CDC1; padding:15px; border-radius:6px; margin-bottom:15px;">
-                    <h5 style="margin-top:0; color:#5F8B7D;">{item['title']} - {item['name']}</h5>
-                    <p class='array-text'><b>【落位口诀】：</b>置于{item['place']}。<br><b>【堪舆妙用】：</b>{item['desc']}</p>
-                    <a href="https://s.taobao.com/search?q={item['kw']}" target="_blank" style="text-decoration:none;">
-                        <button style="background-color:#F9F6F0; color:#4A6E62; border:1px solid #5F8B7D; padding:6px 12px; border-radius:4px; cursor:pointer;">🔍 寻觅此物</button>
+                <div style="background-color:#FFFFFF; border:1px solid #D3CDC1; padding:15px; border-radius:6px; margin-bottom:15px; height:100%;">
+                    <h5 style="margin-top:0; color:#5F8B7D;">{aux_cores[0]['title']}<br>{aux_cores[0]['name']}</h5>
+                    <p style='font-size:13px; color:#666;'><b>📍 阵位：</b>{aux_cores[0]['place']}</p>
+                    <a href="https://s.taobao.com/search?q={aux_cores[0]['kw']}" target="_blank" style="text-decoration:none;">
+                        <button style="background-color:#F9F6F0; color:#4A6E62; border:1px solid #5F8B7D; padding:6px 12px; border-radius:4px; cursor:pointer; width:100%;">🔍 寻觅此物</button>
                     </a>
                 </div>
                 """, unsafe_allow_html=True)
-                
-            st.markdown("<p class='array-text' style='text-align:center; color:#B84B4B; margin-top:20px;'><b>谨记：三位法器归位之日，便是此局煞气消散、财运重聚之时。福生无量天尊。</b></p>", unsafe_allow_html=True)
+            with col_b:
+                st.markdown(f"""
+                <div style="background-color:#FFFFFF; border:1px solid #D3CDC1; padding:15px; border-radius:6px; margin-bottom:15px; height:100%;">
+                    <h5 style="margin-top:0; color:#5F8B7D;">{aux_cores[1]['title']}<br>{aux_cores[1]['name']}</h5>
+                    <p style='font-size:13px; color:#666;'><b>📍 阵位：</b>{aux_cores[1]['place']}</p>
+                    <a href="https://s.taobao.com/search?q={aux_cores[1]['kw']}" target="_blank" style="text-decoration:none;">
+                        <button style="background-color:#F9F6F0; color:#4A6E62; border:1px solid #5F8B7D; padding:6px 12px; border-radius:4px; cursor:pointer; width:100%;">🔍 寻觅此物</button>
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+            <p class='array-text'><b>⏳ 第三步：破局断言</b><br>
+            请于吉日良辰，净手焚香，将此三件法器依阵位落下。归位之日起，三日至七日内，您必感室内气场澄澈，心神安宁。流年大煞自此冰消瓦解，贵人与财源将循清灵之气而至。福生无量天尊。</p>
+            """, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"灵力中断：{str(e)}")
