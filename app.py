@@ -26,13 +26,11 @@ st.markdown("""
 def encode_image(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode('utf-8')
 
-# 【记忆魔法】：避免重复请求导致被封，记住坐标 1 小时
 @st.cache_data(ttl=3600, show_spinner=False)
 def scan_nearby_fengshui_pois(lat, lon, radius=1000):
-    """全方位侦测：涵盖建筑、山、水、路、村落"""
     overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
-    [out:json][timeout:20];
+    [out:json][timeout:15];
     (
       nwr["amenity"](around:{radius},{lat},{lon});
       nwr["building"~"."]["name"](around:{radius},{lat},{lon});
@@ -43,7 +41,7 @@ def scan_nearby_fengshui_pois(lat, lon, radius=1000):
     );
     out tags center;
     """
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) CyberFengShui/2.0'}
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
     try:
         response = requests.get(overpass_url, params={'data': overpass_query}, headers=headers, timeout=12)
         data = response.json()
@@ -84,16 +82,13 @@ def main():
     api_key = st.secrets.get("GOOGLE_API_KEY", "")
     with st.sidebar:
         st.header("⚙️ 引擎配置")
-        if not api_key:
-            api_key = st.text_input("Google API Key:", type="password")
-        else:
-            st.success("🔒 禅心灵力已接入")
+        if not api_key: api_key = st.text_input("Google API Key:", type="password")
+        else: st.success("🔒 禅心灵力已接入")
         model_choice = st.selectbox("推演引擎:", ["gemini-2.5-flash", "gemini-2.5-pro"])
         if st.button("🔄 刷新地脉雷达记忆"):
             st.cache_data.clear()
             st.rerun()
 
-    # ================= 1. 获取外局 =================
     st.subheader("📍 壹 · 地脉寻龙")
     location = streamlit_geolocation()
     geo_context = ""
@@ -107,25 +102,22 @@ def main():
         nearby_pois = scan_nearby_fengshui_pois(lat, lon)
         if nearby_pois:
             radar_placeholder.info("🗺️ **雷达探明周边气场：**\n" + "、".join(nearby_pois))
-            geo_context += f"【雷达探测1000米环境】：{', '.join(nearby_pois)}。\n"
+            geo_context += f"【雷达探测环境】：{', '.join(nearby_pois)}。\n"
         else:
-            radar_placeholder.warning("⚠️ **雷达监控：** 未探测到显赫地标，此地气场较平淡。")
+            radar_placeholder.warning("⚠️ 未探测到显赫地标，此地气场较平淡。")
 
-    micro_env = st.text_input("🏘️ 补充描述 (例: 窗外有高压线/正对丁字路口)")
+    micro_env = st.text_input("🏘️ 补充描述 (例: 窗外有高压线)")
     if micro_env: geo_context += f"小外局补充：{micro_env}。\n"
 
     st.markdown("---")
-    
-    # ================= 2. 获取图像 (多图上传) =================
-    st.subheader("📸 贰 · 全息观形")
+    st.subheader("📸 贰 · 全息观形 (支持多图与户型图)")
     col1, col2 = st.columns(2)
-    with col1: win_files = st.file_uploader("📸 窗外景观 (多张)", accept_multiple_files=True, key="win")
-    with col2: in_files = st.file_uploader("📜 室内多角 (多张)", accept_multiple_files=True, key="in")
+    with col1: win_files = st.file_uploader("📸 窗外景观 (可多张)", accept_multiple_files=True, key="win")
+    with col2: in_files = st.file_uploader("📜 室内实景或户型图", accept_multiple_files=True, key="in")
 
     total_files = len(win_files) + len(in_files)
     st.markdown("---")
 
-    # ================= 3. 推演逻辑 =================
     if st.button("🔮 开启禅心风水推演", type="primary", use_container_width=True):
         if not api_key: st.error("请配置 API Key"); return
         if total_files == 0: st.error("大师需要法相照片"); return
@@ -133,7 +125,7 @@ def main():
         with st.status("🔮 正在开启全息风水阵...", expanded=True) as status:
             st.write("📡 融合地脉雷达数据...")
             time.sleep(1.0)
-            st.write("👁️ 视觉天眼扫描形峦细节...")
+            st.write("👁️ 识别实景与户型格局...")
             time.sleep(1.0)
             status.update(label="✅ 卦象已成，正在宣说...", state="complete", expanded=False)
 
@@ -144,23 +136,28 @@ def main():
         try:
             client = OpenAI(api_key=api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
             
+            # 【重大升级】：户型图分流逻辑 + 顺势调理
             master_prompt = f"""
-            # Role: 首席堪舆宗师 (结合环境心理学与断舍离)
-            你必须极其客观、先扬后抑。严禁在文中出现“先扬”、“后抑”等程序化词汇。
-            字数要求：不少于 1000 字，要求逻辑缜密、引经据典、充满人文关怀。
+            # Role: 首席堪舆宗师 (精通户型风水、环境心理学)
+            你的诊断必须中正客观，排版清晰。严禁在文中出现程序化提示词。
 
             # Input Context:
-            {geo_context}
+            1. 地脉雷达信息：\n{geo_context}
+            2. 用户上传的照片（可能包含户型设计图，也可能是室内实景照片）。
 
-            # Output Structure:
+            # Output Structure (总字数不少于1000字):
             1. 📜 【禅语定势】：写一首具有画面感的七言诗。
-            2. 🌟 【地脉优势勘验】：详细分析雷达数据中的道路、水系、建筑、山峦带来的吉利气场。告诉用户为什么这里的底色是好的。
-            3. ⚠️ 【形峦隐患点拨】：犀利指出雷达数据或照片中的隐患（如铁龙脉震动、电线杆煞）。结合环境心理学，解释其如何导致焦虑、决策失误或健康损耗。
-            4. 🧹 【大道至简 · 扫洒除尘】：
-               - 必须针对用户照片中的具体细节（如乱线、灰尘、杂物、枯枝）。
-               - 给出 1 个完全免费的整理建议。
-               - 详细解释：为什么“窗明几净”能平复磁场。
-            5. 🔮 【破局之机】：总结治本之道。预留法器化解的悬念，严禁说出具体物品。
+            2. 🌟 【地脉优势勘验】：详细分析雷达数据带来的吉利气场。
+            3. ⚠️ 【形峦隐患点拨】：
+               - 重点分流：仔细观察图片！如果是【户型平面图】，请必须指出布局硬伤（如：门对门、缺角、卫生间居中、穿堂煞等）；如果是【室内实景图】，指出形峦冲煞或压迫感。
+               - 结合环境心理学解释其负面影响。
+            4. 🛋️ 【大道至简 · 顺势调理】（免费化解法）：
+               - 严禁一直建议打扫卫生！
+               - 必须给出物理空间布局的调整建议：例如，建议调整床的朝向、把书桌移开窗户、在某处挂一个门帘挡煞、或者挪动某个遮挡光线的柜子。
+               - 详细解释：这样物理挪动后，是如何改变了室内的气场流向（风道与光影）。
+            5. 🔮 【治本之道 · 预警】：
+               - 总结：物理布局调整能缓解表层冲撞。
+               - 抛出诱饵：然若要彻底化解此局，需布下贫道推演的【专属阵法】。此阵需借金木水火土三位法器，分别镇守阵眼……（在此处停止，绝不说出具体法器，留下极强的付费悬念）。
             """
             
             content_list = [{"type": "text", "text": master_prompt}]
@@ -179,37 +176,60 @@ def main():
                     report_placeholder.markdown(full_report + "▌")
             report_placeholder.markdown(full_report)
             
-            # ================= 4. 带货逻辑 (动态 2+1) =================
+            # ================= 变现钩子 =================
             st.markdown("---")
-            st.warning("⚠️ 破解之道：知易行难。由于格局复杂，需精确法器引导气场。")
-            st.button("💰 支付 ￥4.99 解锁《全息方位调理图解》", use_container_width=True)
+            st.warning("⚠️ 免费推演至此结束。破解之道，在乎法器引气布阵。")
+            st.button("💰 支付 ￥4.99 解锁《治本之道：专属化煞聚气阵法》", use_container_width=True)
             
-            st.markdown("### 🏮 大师阵眼 · 灵药图鉴")
+            # ================= 交付感拉满：阵法包装 =================
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("---")
+            st.markdown("<p style='text-align:center; color:#888; font-size:12px;'>⬇️ 以下为模拟用户支付 4.99 元后解锁的【高级阵法界面】 ⬇️</p>", unsafe_allow_html=True)
+            
+            # 动态生成阵法名称
+            array_names = ["紫气东来纳福阵", "五行斗转星移阵", "太极两仪化煞阵", "九宫飞星旺财阵", "八卦锁幽凝神阵"]
+            selected_array = random.choice(array_names)
+            
+            st.markdown(f"### 🏆 治本之道：【{selected_array}】")
+            st.markdown("""
+            > **大师法旨**：此阵法专为您当前的格局所创。以主法器镇压核心凶位，辅以日常五行之物催化气场流转。三件物品缺一不可，请依图位悉心布置。
+            """)
+            
             mundane = [
-                {"name": "🪨 天然溪水鹅卵石", "kw": "天然 鹅卵石 摆件", "place": "窗台或青龙位", "why": "土生金，镇定火煞。"},
-                {"name": "☕ 纯白陶瓷水杯", "kw": "白色 陶瓷杯 简约", "place": "工位明堂", "why": "金水相生，平复燥气。"},
-                {"name": "🌱 桌面开运小绿植", "kw": "水培 绿萝 桌面", "place": "电脑左侧", "why": "木气生发，化解电子死气。"},
-                {"name": "📏 工业加厚金属尺", "kw": "不锈钢 直尺", "place": "杂物堆旁", "why": "庚金截流，快刀斩乱麻。"},
-                {"name": "🏮 暖色调小台灯", "kw": "暖色 氛围灯", "place": "阴暗角落", "why": "离火补阳，驱散阴寒。"}
+                {"name": "🪨 天然溪水鹅卵石", "kw": "天然 鹅卵石 摆件", "role": "阵法催化", "place": "窗台或青龙位", "why": "土生金，吸收尖锐火煞。"},
+                {"name": "☕ 纯白陶瓷水杯", "kw": "白色 陶瓷杯 简约", "role": "辅阵之眼", "place": "工位正前方明堂", "why": "金水相生，平复燥气。"},
+                {"name": "🌱 桌面水培小绿植", "kw": "水培 绿萝 桌面", "role": "辅阵之眼", "place": "电脑左侧或财位", "why": "木气生发，盘活死气。"},
+                {"name": "📏 工业加厚金属尺", "kw": "不锈钢 直尺", "role": "阵法催化", "place": "凌乱区域压阵", "why": "庚金截流，斩断杂乱木煞。"},
+                {"name": "🏮 暖色调小台灯", "kw": "暖色 氛围灯", "place": "阴暗角落", "role": "辅阵之眼", "why": "离火补阳，驱散阴寒。"}
             ]
             pros = [
-                {"name": "葫 纯铜实心小葫芦", "kw": "纯铜 葫芦 挂件", "place": "门把手或窗前", "why": "吸纳病气口舌。"},
-                {"name": "🪙 仿古纯铜五帝钱", "kw": "五帝钱 挂件 纯铜", "place": "入户门下", "why": "极阳金气，挡路冲。"},
-                {"name": "🦁 纯铜镇宅小貔貅", "kw": "纯铜 貔貅 摆件", "place": "头朝外窗角", "why": "瑞兽守财，挡尖角。"}
+                {"name": "葫 纯铜实心小葫芦", "kw": "纯铜 葫芦 挂件", "role": "核心主阵眼", "place": "煞气直冲的门把手或窗前", "why": "泄土煞，强力吸纳病气与冲撞。"},
+                {"name": "🪙 仿古纯铜五帝钱", "kw": "五帝钱 挂件 纯铜", "role": "核心主阵眼", "place": "入户门地垫下或横梁下方", "why": "前朝极阳金气，挡外来路冲。"},
+                {"name": "🦁 纯铜镇宅小貔貅", "kw": "纯铜 貔貅 摆件", "role": "核心主阵眼", "place": "头朝窗外放置于煞气位", "why": "上古瑞兽，镇守财库，吞噬凶煞。"}
             ]
             
-            final_items = random.sample(mundane, 2) + random.sample(pros, 1)
-            random.shuffle(final_items)
+            # 选取 1个主阵眼 + 2个辅阵/催化
+            main_core = random.sample(pros, 1)
+            aux_cores = random.sample(mundane, 2)
+            final_items = main_core + aux_cores
             
             cols = st.columns(3)
             for idx, item in enumerate(final_items):
                 with cols[idx]:
                     url = f"https://s.taobao.com/search?q={item['kw']}"
+                    # 用深浅不一的背景色区分主阵眼和辅阵眼，增加高级感
+                    bg_color = "#EDF2F0" if item["role"] == "核心主阵眼" else "#FFFFFF"
+                    border_color = "#4A6E62" if item["role"] == "核心主阵眼" else "#EBE6DF"
+                    
                     st.markdown(f"""
-                    <div style="background-color:white; padding:12px; border-radius:8px; border:1px solid #EBE6DF; text-align:center; height:100%;">
-                        <h5 style="margin:0; color:#5F8B7D;">{item['name']}</h5>
-                        <p style="color:#666; font-size:12px; margin:5px 0;">📍{item['place']}<br>☯️{item['why']}</p>
-                        <a href="{url}" target="_blank"><button style="background-color:#F9F6F0; color:#4A6E62; border:1px solid #5F8B7D; width:100%; border-radius:4px; cursor:pointer;">🔍 寻觅</button></a>
+                    <div style="background-color:{bg_color}; padding:15px; border-radius:8px; border:2px solid {border_color}; text-align:center; height:100%;">
+                        <span style="background-color:#4A6E62; color:white; padding:2px 8px; border-radius:12px; font-size:11px;">{item['role']}</span>
+                        <h4 style="margin:10px 0 5px 0; color:#2C3E50;">{item['name']}</h4>
+                        <div style="text-align:left; background:rgba(255,255,255,0.6); padding:8px; border-radius:4px; margin-bottom:10px;">
+                            <p style="color:#555; font-size:12px; margin:0 0 5px 0;"><b>📍 定位：</b>{item['place']}</p>
+                            <p style="color:#884A4A; font-size:12px; margin:0;"><b>☯️ 效用：</b>{item['why']}</p>
+                        </div>
+                        <a href="{url}" target="_blank"><button style="background-color:#2C3E50; color:#D4AF37; border:none; width:100%; padding:8px; border-radius:4px; cursor:pointer; font-weight:bold;">奉请法器 ➔</button></a>
                     </div>
                     """, unsafe_allow_html=True)
 
