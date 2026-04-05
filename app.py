@@ -204,23 +204,25 @@ def main():
             main_core = random.sample(pros, 1)[0]
             aux_cores = random.sample(mundane, 2)
             
-            st.markdown(f"""
-            <div style="background-color: #FAF8F2; padding: 30px; border: 1px solid #E3DBCB; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.02);">
-                <h3 style='text-align:center; color:#2C3E50; margin-bottom: 30px; border-bottom: 1px solid #D4AF37; padding-bottom: 10px;'>📜 秘传真诀：【{selected_array}】</h3>
-                
-                <span class='array-title'>【阵理玄机】</span>
-                <p class='array-text'>观贵宅之气运交锋，寻常之物已难承其重。此【{selected_array}】乃贫道结合天地地脉与室内理气，独家推演而出的无上法门。阵法之妙，在于“一主两辅，三才合一”。借特定法器之五行灵力，锁住明堂之财，化解暗处之煞。布下此阵，犹如为家宅披上一层无形之铠甲，外邪不入，内气不泄。</p>
+           # 注意：这里的 HTML 代码必须顶格写（最左边不能有空格），否则会被 Markdown 误认为是代码块！
+            html_content = f"""
+<div style="background-color: #FAF8F2; padding: 30px; border: 1px solid #E3DBCB; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.02);">
+    <h3 style='text-align:center; color:#2C3E50; margin-bottom: 30px; border-bottom: 1px solid #D4AF37; padding-bottom: 10px;'>📜 秘传真诀：【{selected_array}】</h3>
+    
+    <span class='array-title'>【阵理玄机】</span>
+    <p class='array-text'>观贵宅之气运交锋，寻常之物已难承其重。此【{selected_array}】乃贫道结合天地地脉与室内理气，独家推演而出的无上法门。阵法之妙，在于“一主两辅，三才合一”。借特定法器之五行灵力，锁住明堂之财，化解暗处之煞。布下此阵，犹如为家宅披上一层无形之铠甲，外邪不入，内气不泄。</p>
 
-                <span class='array-title'>⚔️ 第一步：定海神针，立主阵眼</span>
-                <p class='array-text'>要破此局，首当其冲需镇压核心凶位。贫道推演，需以 <a href="https://s.taobao.com/search?q={main_core['kw']}" target="_blank" style="color:#B84B4B; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #B84B4B; padding-bottom: 2px;">{main_core['name']}</a> 作为本局之主阵眼。此物{main_core['desc']} 此阵眼之<b>【落位口诀】为：需端正安放于{main_core['place']}</b>，切勿偏倚。</p>
-                
-                <span class='array-title'>🌿 第二步：五行相济，布辅阵眼</span>
-                <p class='array-text'>主阵既立，需以五行相生之物辅佐，方能令气场流转不息，生生不绝。其一，当寻一 <a href="https://s.taobao.com/search?q={aux_cores[0]['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px;">{aux_cores[0]['name']}</a>，落位于<b>{aux_cores[0]['place']}</b>，取其{aux_cores[0]['desc']}其二，需觅得 <a href="https://s.taobao.com/search?q={aux_cores[1]['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px;">{aux_cores[1]['name']}</a>，安置于<b>{aux_cores[1]['place']}</b>，以达阴阳调和之境。双辅齐下，生财化煞之功乃成。</p>
+    <span class='array-title'>⚔️ 第一步：定海神针，立主阵眼</span>
+    <p class='array-text'>要破此局，首当其冲需镇压核心凶位。贫道推演，需以 <a href="https://s.taobao.com/search?q={main_core['kw']}" target="_blank" style="color:#B84B4B; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #B84B4B; padding-bottom: 2px;">{main_core['name']}</a> 作为本局之主阵眼。此物{main_core['desc']} 此阵眼之<b>【落位口诀】为：需端正安放于{main_core['place']}</b>，切勿偏倚。</p>
+    
+    <span class='array-title'>🌿 第二步：五行相济，布辅阵眼</span>
+    <p class='array-text'>主阵既立，需以五行相生之物辅佐，方能令气场流转不息，生生不绝。其一，当寻一 <a href="https://s.taobao.com/search?q={aux_cores[0]['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px;">{aux_cores[0]['name']}</a>，落位于<b>{aux_cores[0]['place']}</b>，取其{aux_cores[0]['desc']}其二，需觅得 <a href="https://s.taobao.com/search?q={aux_cores[1]['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px;">{aux_cores[1]['name']}</a>，安置于<b>{aux_cores[1]['place']}</b>，以达阴阳调和之境。双辅齐下，生财化煞之功乃成。</p>
 
-                <span class='array-title'>⏳ 第三步：破局断言</span>
-                <p class='array-text'>请于吉日良辰，净手焚香，将这三件法器依阵位依次落下。归位之日起，三日至七日内，您必感室内气场澄澈，心神安宁。流年大煞自此冰消瓦解，贵人与财源将循清灵之气而至。顺天应人，福生无量天尊。</p>
-            </div>
-            """, unsafe_allow_html=True)
+    <span class='array-title'>⏳ 第三步：破局断言</span>
+    <p class='array-text'>请于吉日良辰，净手焚香，将这三件法器依阵位依次落下。归位之日起，三日至七日内，您必感室内气场澄澈，心神安宁。流年大煞自此冰消瓦解，贵人与财源将循清灵之气而至。顺天应人，福生无量天尊。</p>
+</div>
+            """
+            st.markdown(html_content, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"灵力中断：{str(e)}")
