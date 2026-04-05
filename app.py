@@ -19,7 +19,9 @@ st.markdown("""
     .stButton>button[kind="primary"]:hover { background-color: #4A6E62; box-shadow: 0 4px 12px rgba(95, 139, 125, 0.3); }
     .stProgress > div > div > div > div { background-color: #5F8B7D; }
     hr { border-bottom-color: #D3CDC1; opacity: 0.6; }
-    .array-text { font-family: 'KaiTi', serif; line-height: 1.8; color: #333; font-size: 15px;}
+    /* 长卷文字排版，增加行距和首行缩进，更像古籍 */
+    .array-text { font-family: 'STSong', 'KaiTi', serif; line-height: 2.0; color: #222; font-size: 16px; text-indent: 2em; margin-bottom: 15px;}
+    .array-title { font-weight: bold; color: #2C3E50; font-size: 18px; margin-top: 20px; display: block; text-indent: 0;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -137,28 +139,25 @@ def main():
         try:
             client = OpenAI(api_key=api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
             
-            # 【修改点 1】：重构 Prompt，允许“打扫卫生”但必须用高级风水黑话包装，加重收费悬念的篇幅
+            # 【修改点 1】：强制要求先扬后抑，洋洋洒洒，只用风水黑话
             master_prompt = f"""
             # Role: 隐世堪舆宗师 (精通玄空飞星、八宅明镜、峦头理气)
-            你的诊断必须充满深厚的传统国学玄学底蕴。严禁使用任何现代科学或心理学词汇。一切皆由气场、五行、阴阳、形峦来解释。排版清晰。
+            你的诊断必须充满深厚的传统国学玄学底蕴，排版必须如古籍长卷般行云流水。切忌通篇贬低，必须“先扬后抑”，先断言其吉相，再点破其凶煞。严禁使用现代心理学或科学词汇。
 
             # Input Context:
             1. 地脉雷达信息：\n{geo_context}
             2. 用户上传的照片。
 
-            # Output Structure (不少于1000字):
-            1. 📜 【禅语定势】：写一首玄妙的七言绝句，断定此局吉凶。
-            2. 🌟 【峦头理气勘验】：分析雷达数据。使用纯正风水术语（如得水藏风、虚水引气），论述此地天地之气的汇聚之势与福泽机缘。
-            3. ⚠️ 【形峦冲煞点拨】：
-               - 重点：仔细观察图片！指出风水硬伤（门冲煞、穿堂煞、火煞、逼虎煞等）。
-               - 必须用“五行生克”或“气场淤滞”解释其对命理、财帛宫、疾厄宫的破坏。
+            # Output Structure (总字数不少于1200字，尽显宗师风范):
+            1. 📜 【禅语定势】：写一首玄妙的七言绝句，点出此局之天地造化。
+            2. 🌟 【藏风聚气 · 寻龙点穴】（先扬 - 必须详尽！）：必须先找出雷达数据或照片中的风水极佳之处。用“青龙蜿蜒、明堂开阔、得水藏风、玉带环腰”等纯正风水术语，大肆赞美此地的天地灵气、地脉福泽，让居住者心生欢喜与自豪。（不少于300字）。
+            3. ⚠️ 【暗煞潜行 · 形峦点拨】（后抑）：话锋一转，指出照片或雷达数据中潜藏的风水硬伤（如门冲、穿堂煞、火煞、逼虎煞等）。用“五行相克”、“气场淤滞”详细解释其对命理运势的暗中损耗。
             4. 🛋️ 【顺势化解 · 拂拭明台】（免费化解法）：
-               - 核心要求：可以将“清理杂物、规整空间”视为“拂拭明台、疏通气脉”的高阶理气手段。
-               - 必须结合照片，给出空间物理布局的调整：如清理某处杂乱以释放青龙位，改变床/桌朝向避开暗箭煞，或利用日常物品遮挡。
-               - 必须用风水学解释：这样挪动与清理是如何改变了室内的“气口”与“风道”，实现了斗转星移之效。切忌写成普通的家政保洁！
-            5. 🔮 【天机预警与阵眼契机】：
-               - 用不少于150字的篇幅，详细描述如果不布阵，流年大煞将如何反扑，财库将如何动荡。
-               - 随后抛出诱饵：“然天无绝人之路，若要彻底锁住明堂财气，镇压流年大煞，逆天改命，唯有布下夺天地造化之大阵，以金木水火土之法器镇守特定阵眼……”（在此处戛然而止，绝不说出具体法器，留下极强的付费悬念）。
+               - 结合照片，给出空间物理布局的调整：如清理某处杂乱以释放青龙位，改变床/桌朝向避开暗箭煞。
+               - 必须用风水学解释：这样挪动与清理是如何改变了室内的“气口”与“风道”，实现了斗转星移之效。
+            5. 🔮 【天机预警】：
+               - 详细描述如果不进一步布阵化煞，流年大运将如何受损。
+               - 结尾抛出悬念：“然天无绝人之路，唯有布下夺天地造化之大阵，以五行法器镇守阵眼……”（戛然而止，绝不说出具体法器）。
             """
             
             content_list = [{"type": "text", "text": master_prompt}]
@@ -182,85 +181,45 @@ def main():
             st.warning("⚠️ 天机至此，免费推演已尽。破解死局，在乎引气布阵。")
             st.button("💰 支付 ￥4.99 解锁《秘传阵法：全息布阵真诀与法器落位图》", use_container_width=True)
             
-            # ================= 【修改点 2】：沉浸式付费报告交付区 (篇幅宏大，融入链接) =================
+            # ================= 【修改点 2】：无痕融入长文的付费秘籍 =================
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("---")
-            st.markdown("<p style='text-align:center; color:#888; font-size:12px;'>⬇️ 以下为用户支付 4.99 元后解锁的【专属阵法秘籍长卷】 ⬇️</p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; color:#888; font-size:12px;'>⬇️ 以下为模拟用户支付 4.99 元后解锁的【阵法长卷】 ⬇️</p>", unsafe_allow_html=True)
             
             array_names = ["九宫飞星聚财阵", "太极两仪化煞阵", "五行斗转星移阵", "乾坤八卦锁幽阵", "先天四象引气阵"]
             selected_array = random.choice(array_names)
             
-            # 商品库（附带玄学原理长文）
             mundane = [
-                {"name": "天然溪水鹅卵石", "title": "【艮土基石 / 辅阵】", "kw": "天然 鹅卵石 摆件", "place": "青龙位或近窗台处", "desc": "此物常年受溪水冲刷，内蕴极强的水土交融之气。风水云“土能生金”，将其安置于此，可稳固本局阵基，吸收外溢之火煞，令室内气场沉稳不散。"},
-                {"name": "纯白陶瓷水杯", "title": "【坎水灵泉 / 催化】", "kw": "白色 陶瓷杯 简约", "place": "明堂正中（书桌/茶几前方）", "desc": "白瓷属金，内注清水即为坎水。金水相生，连环生息。只需注入八分满清水，置于明堂，便能化解空间内的暴躁之气，柔化锐煞，引财气绵延。"},
-                {"name": "桌面水培富贵竹", "title": "【巽木生花 / 辅阵】", "kw": "水培 富贵竹 桌面", "place": "大门斜对角（明财位）", "desc": "木气主生发，水培乃活水。将此物置于财位，以水养木，生生不息。不仅能驱散周遭死滞之气，更可盘活财库，令运势如竹节般步步高升。"},
-                {"name": "工业级金属直尺", "title": "【庚金断刃 / 催化】", "kw": "不锈钢 直尺 加厚", "place": "桌面或抽屉底层", "desc": "五行之中，庚金最为肃杀刚硬。此处木气繁杂，易生纠葛。以此金尺压阵，取“快刀斩乱麻”之意，斩断晦暗气机，助主人行事果决，避退小人。"}
+                {"name": "天然溪水鹅卵石", "kw": "天然 鹅卵石 摆件", "place": "青龙位或近窗台处", "desc": "此物常年受溪水冲刷，内蕴极强的水土交融之气。风水云“土能生金”，将其安置于此，可稳固本局阵基，吸收外溢之火煞，令室内气场沉稳不散。"},
+                {"name": "纯白陶瓷水杯", "kw": "白色 陶瓷杯 简约", "place": "明堂正中（书桌/茶几前方）", "desc": "白瓷属金，内注清水即为坎水。金水相生，连环生息。只需注入八分满清水，置于明堂，便能化解空间内的暴躁之气，柔化锐煞，引财气绵延。"},
+                {"name": "桌面水培富贵竹", "kw": "水培 富贵竹 桌面", "place": "大门斜对角（明财位）", "desc": "木气主生发，水培乃活水。将此物置于财位，以水养木，生生不息。不仅能驱散周遭死滞之气，更可盘活财库，令运势如竹节般步步高升。"},
+                {"name": "工业级金属直尺", "kw": "不锈钢 直尺 加厚", "place": "桌面或抽屉底层", "desc": "五行之中，庚金最为肃杀刚硬。此处木气繁杂，易生纠葛。以此金尺压阵，取“快刀斩乱麻”之意，斩断晦暗气机，助主人行事果决，避退小人。"}
             ]
             pros = [
-                {"name": "纯铜实心小葫芦", "title": "【太极阵眼 / 核心】", "kw": "纯铜 葫芦 挂件", "place": "直冲之气口（门把手或窗户正上）", "desc": "葫芦形似太极，肚大口小，乃道家收邪化病之上品法器。纯铜材质属重金，专泄五黄二黑土煞。悬于此阵眼处，可强力吞噬侵入宅内的病气与凶煞，只进不出，镇守宅门安宁。"},
-                {"name": "仿古纯铜五帝钱", "title": "【帝威阵眼 / 核心】", "kw": "五帝钱 挂件 纯铜", "place": "横梁下方或入户地垫底部", "desc": "五帝钱汇聚前朝盛世之天、地、人三才之气，至阳至刚。以此物为核心阵眼，可凭千古帝王之威，强力破除横梁压顶之上压，阻挡外来路冲之锐气，保家宅四平八稳。"},
-                {"name": "纯铜镇宅小貔貅", "title": "【吞金阵眼 / 核心】", "kw": "纯铜 貔貅 摆件", "place": "阵局前方，头朝门外或窗外", "desc": "貔貅乃上古吞金瑞兽，以重铜铸其形，杀气隐现。将其置于此位，不仅能迎击并咬碎对面刺来的尖角煞，更能以阵眼之力大开财门，广纳八方明财暗财。"}
+                {"name": "纯铜实心小葫芦", "kw": "纯铜 葫芦 挂件", "place": "直冲之气口（门把手或窗户正上）", "desc": "葫芦形似太极，肚大口小，乃道家收邪化病之上品法器。纯铜材质属重金，专泄五黄二黑土煞。悬于此阵眼处，可强力吞噬侵入宅内的病气与凶煞，只进不出，镇守宅门安宁。"},
+                {"name": "仿古纯铜五帝钱", "kw": "五帝钱 挂件 纯铜", "place": "横梁下方或入户地垫底部", "desc": "五帝钱汇聚前朝盛世之天、地、人三才之气，至阳至刚。以此物为核心阵眼，可凭千古帝王之威，强力破除横梁压顶之上压，阻挡外来路冲之锐气，保家宅四平八稳。"},
+                {"name": "纯铜镇宅小貔貅", "kw": "纯铜 貔貅 摆件", "place": "阵局前方，头朝门外或窗外", "desc": "貔貅乃上古吞金瑞兽，以重铜铸其形，杀气隐现。将其置于此位，不仅能迎击并咬碎对面刺来的尖角煞，更能以阵眼之力大开财门，广纳八方明财暗财。"}
             ]
             
             main_core = random.sample(pros, 1)[0]
             aux_cores = random.sample(mundane, 2)
             
-            # 【生成堪舆秘籍长文】
-            st.markdown(f"<h3 style='color:#2C3E50;'>🔮 秘传真诀：【{selected_array}】</h3>", unsafe_allow_html=True)
-            
             st.markdown(f"""
-            <p class='array-text'><b>【阵理玄机】</b><br>
-            观贵宅之气运交锋，寻常之物已难承其重。此【{selected_array}】乃贫道结合天地地脉与室内理气，独家推演而出的无上法门。阵法之妙，在于“一主两辅，三才合一”。借特定法器之五行灵力，锁住明堂之财，化解暗处之煞。布下此阵，犹如为家宅披上一层无形之铠甲，外邪不入，内气不泄。</p>
-            """, unsafe_allow_html=True)
+            <div style="background-color: #FAF8F2; padding: 30px; border: 1px solid #E3DBCB; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.02);">
+                <h3 style='text-align:center; color:#2C3E50; margin-bottom: 30px; border-bottom: 1px solid #D4AF37; padding-bottom: 10px;'>📜 秘传真诀：【{selected_array}】</h3>
+                
+                <span class='array-title'>【阵理玄机】</span>
+                <p class='array-text'>观贵宅之气运交锋，寻常之物已难承其重。此【{selected_array}】乃贫道结合天地地脉与室内理气，独家推演而出的无上法门。阵法之妙，在于“一主两辅，三才合一”。借特定法器之五行灵力，锁住明堂之财，化解暗处之煞。布下此阵，犹如为家宅披上一层无形之铠甲，外邪不入，内气不泄。</p>
 
-            st.markdown(f"""
-            <p class='array-text'><b>⚔️ 第一步：定海神针，立主阵眼</b><br>
-            要破此局，首当其冲需镇压核心凶位。贫道推演，需以 <b style='color:#4A6E62;'>{main_core['name']}</b> 作为本局之主阵眼。此物{main_core['desc']}</p>
-            """, unsafe_allow_html=True)
-            
-            # 主阵眼带货卡片
-            st.markdown(f"""
-            <div style="background-color:#F4F1EA; border-left:4px solid #4A6E62; padding:15px; margin:10px 0 20px 0;">
-                <h5 style="margin-top:0; color:#2C3E50;">{main_core['title']} - {main_core['name']}</h5>
-                <p style='font-size:14px; margin-bottom:10px; color:#555;'><b>📍 落位口诀：</b>需端正安放于 {main_core['place']}。</p>
-                <a href="https://s.taobao.com/search?q={main_core['kw']}" target="_blank" style="text-decoration:none;">
-                    <button style="background-color:#4A6E62; color:#FFF; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; width:100%;">🔮 奉请主阵眼法器</button>
-                </a>
+                <span class='array-title'>⚔️ 第一步：定海神针，立主阵眼</span>
+                <p class='array-text'>要破此局，首当其冲需镇压核心凶位。贫道推演，需以 <a href="https://s.taobao.com/search?q={main_core['kw']}" target="_blank" style="color:#B84B4B; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #B84B4B; padding-bottom: 2px;">{main_core['name']}</a> 作为本局之主阵眼。此物{main_core['desc']} 此阵眼之<b>【落位口诀】为：需端正安放于{main_core['place']}</b>，切勿偏倚。</p>
+                
+                <span class='array-title'>🌿 第二步：五行相济，布辅阵眼</span>
+                <p class='array-text'>主阵既立，需以五行相生之物辅佐，方能令气场流转不息，生生不绝。其一，当寻一 <a href="https://s.taobao.com/search?q={aux_cores[0]['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px;">{aux_cores[0]['name']}</a>，落位于<b>{aux_cores[0]['place']}</b>，取其{aux_cores[0]['desc']}其二，需觅得 <a href="https://s.taobao.com/search?q={aux_cores[1]['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px;">{aux_cores[1]['name']}</a>，安置于<b>{aux_cores[1]['place']}</b>，以达阴阳调和之境。双辅齐下，生财化煞之功乃成。</p>
+
+                <span class='array-title'>⏳ 第三步：破局断言</span>
+                <p class='array-text'>请于吉日良辰，净手焚香，将这三件法器依阵位依次落下。归位之日起，三日至七日内，您必感室内气场澄澈，心神安宁。流年大煞自此冰消瓦解，贵人与财源将循清灵之气而至。顺天应人，福生无量天尊。</p>
             </div>
-            """, unsafe_allow_html=True)
-
-            st.markdown(f"""
-            <p class='array-text'><b>🌿 第二步：五行相济，布辅阵眼</b><br>
-            主阵既立，需以五行相生之物辅佐，方能令气场流转不息，生生不绝。一为 <b style='color:#5F8B7D;'>{aux_cores[0]['name']}</b>，落位于 {aux_cores[0]['place']}，取其{aux_cores[0]['desc'].split('。')[0]}之意；二为 <b style='color:#5F8B7D;'>{aux_cores[1]['name']}</b>，安置于 {aux_cores[1]['place']}，以达阴阳调和之境。双辅齐下，生财化煞之功乃成。</p>
-            """, unsafe_allow_html=True)
-
-            # 辅阵眼带货卡片
-            col_a, col_b = st.columns(2)
-            with col_a:
-                st.markdown(f"""
-                <div style="background-color:#FFFFFF; border:1px solid #D3CDC1; padding:15px; border-radius:6px; margin-bottom:15px; height:100%;">
-                    <h5 style="margin-top:0; color:#5F8B7D;">{aux_cores[0]['title']}<br>{aux_cores[0]['name']}</h5>
-                    <p style='font-size:13px; color:#666;'><b>📍 阵位：</b>{aux_cores[0]['place']}</p>
-                    <a href="https://s.taobao.com/search?q={aux_cores[0]['kw']}" target="_blank" style="text-decoration:none;">
-                        <button style="background-color:#F9F6F0; color:#4A6E62; border:1px solid #5F8B7D; padding:6px 12px; border-radius:4px; cursor:pointer; width:100%;">🔍 寻觅此物</button>
-                    </a>
-                </div>
-                """, unsafe_allow_html=True)
-            with col_b:
-                st.markdown(f"""
-                <div style="background-color:#FFFFFF; border:1px solid #D3CDC1; padding:15px; border-radius:6px; margin-bottom:15px; height:100%;">
-                    <h5 style="margin-top:0; color:#5F8B7D;">{aux_cores[1]['title']}<br>{aux_cores[1]['name']}</h5>
-                    <p style='font-size:13px; color:#666;'><b>📍 阵位：</b>{aux_cores[1]['place']}</p>
-                    <a href="https://s.taobao.com/search?q={aux_cores[1]['kw']}" target="_blank" style="text-decoration:none;">
-                        <button style="background-color:#F9F6F0; color:#4A6E62; border:1px solid #5F8B7D; padding:6px 12px; border-radius:4px; cursor:pointer; width:100%;">🔍 寻觅此物</button>
-                    </a>
-                </div>
-                """, unsafe_allow_html=True)
-
-            st.markdown(f"""
-            <p class='array-text'><b>⏳ 第三步：破局断言</b><br>
-            请于吉日良辰，净手焚香，将此三件法器依阵位落下。归位之日起，三日至七日内，您必感室内气场澄澈，心神安宁。流年大煞自此冰消瓦解，贵人与财源将循清灵之气而至。福生无量天尊。</p>
             """, unsafe_allow_html=True)
 
         except Exception as e:
