@@ -5,6 +5,7 @@ import time
 import requests
 import random
 from streamlit_geolocation import streamlit_geolocation
+from fengshui_core import CyberCompass  # 引入我们写好的硬核算理引擎
 
 # ================= 页面基础配置 =================
 st.set_page_config(page_title="赛博堪舆大师 | 秘传全息风水", page_icon="☯️", layout="centered")
@@ -133,7 +134,6 @@ def main():
         {"name": "纯铜镇宅小貔貅", "title": "【吞金阵眼 / 核心】", "kw": "纯铜 貔貅 摆件", "place": "阵局前方，头朝门外或窗外", "desc": "貔貅乃上古吞金瑞兽，以重铜铸其形，杀气隐现。将其置于此位，不仅能迎击并咬碎对面刺来的尖角煞，更能以阵眼之力大开财门，广纳八方明财暗财。"}
     ]
     
-    # 随机分配：1个免费区带货，1个付费区主阵眼，1个付费区辅阵眼
     free_item = random.choice(mundane)
     remaining_mundane = [m for m in mundane if m['name'] != free_item['name']]
     paid_main = random.choice(pros)
@@ -147,38 +147,45 @@ def main():
         if total_files == 0: st.error("大师需要法相照片"); return
 
         with st.status("🔮 正在开启风水大阵...", expanded=True) as status:
-            st.write("📡 勘测阴阳理气...")
+            st.write("📡 融合外围地脉与实境法相...")
             time.sleep(1.0)
-            st.write("👁️ 识别形峦格局...")
+            st.write("🧭 正在挂载紫微九星算理引擎，进行流年定位...")
             time.sleep(1.0)
-            status.update(label="✅ 卦象已成，天机显露...", state="complete", expanded=False)
+            status.update(label="✅ 九宫飞星推演完毕，天机显露...", state="complete", expanded=False)
 
         st.markdown("### 📜 堪舆诊断批言")
         report_placeholder = st.empty()
         full_report = ""
 
         try:
+            # 挂载风水核心算理引擎
+            flying_stars_data = CyberCompass.calculate_flying_stars()
+            stars_str = "\n".join([f"{k}: {v}" for k, v in flying_stars_data['stars'].items()])
+            current_year = flying_stars_data['year']
+
             client = OpenAI(api_key=api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
             
-            # 【修改点 1】：强迫大模型在免费区推荐指定的法器 (free_item)
+            # 【终极约束 Prompt】：引入算理引擎数据，强制关联流年
             master_prompt = f"""
-            # Role: 隐世堪舆宗师 (精通玄空飞星、八宅明镜、峦头理气)
-            你的诊断必须充满深厚的传统国学玄学底蕴，排版如古籍长卷。必须“先扬后抑”。严禁使用现代心理学或科学词汇。
+            # Role: 隐世堪舆宗师 (精通玄空飞星、理气算数)
+            你的诊断必须充满深厚的传统国学玄学底蕴，排版如古籍长卷。你必须严格依据提供的【硬性算理数据】进行推演，严禁凭空捏造吉凶方位。
 
-            # Input Context:
+            # 硬性算理数据 (不可辩驳的客观事实):
             1. 地脉雷达信息：\n{geo_context}
-            2. 用户上传的照片。
+            2. 【{current_year}年 九宫飞星盘】：\n{stars_str}
 
             # Output Structure (总字数不少于1200字):
-            1. 📜 【禅语定势】：写一首玄妙的七言绝句，点出此局之天地造化。
-            2. 🌟 【藏风聚气 · 寻龙点穴】（先扬）：用纯正风水术语大肆赞美此地的天地灵气、地脉福泽，让居住者心生欢喜。
-            3. ⚠️ 【暗煞潜行 · 形峦点拨】（后抑）：指出潜藏的风水硬伤。用“五行相克”、“气场淤滞”详细解释其对命理运势的暗中损耗。
-            4. 🛋️ 【顺势化解 · 借力打力】（免费化解法）：
-               - 结合照片，给出空间物理布局的调整。
-               - 【强制任务】：你必须在这一段中，强烈建议用户在调整后的位置摆放一件寻常可见的灵物：【{free_item['name']}】。
-               - 必须用风水学原理解释它（{free_item['desc']}）是如何改变了室内的“气口”与“风道”，实现了斗转星移之效。
+            1. 📜 【禅语定势】：写一首玄妙的七言绝句，总括此局。
+            2. 🌟 【藏风聚气 · 寻龙点穴】（强制先扬）：结合雷达数据，用纯正风水术语大肆赞美此地的天地灵气与地脉福泽。
+            3. ⚠️ 【流年暗煞 · 形峦点拨】（强制约束）：
+               - 你必须查看【九宫飞星盘】中，“五黄廉贞星（极凶）”或“二黑巨门星（大凶）”今年落在了哪个方位。
+               - 死死盯住用户上传的照片，指出照片中的环境硬伤（如杂物淤滞、尖角冲射）。
+               - 必须将照片中的硬伤，与今年的飞星大煞结合起来恐吓用户。例如：“观照片中此处杂乱，若恰逢今年五黄星降临此方，必引动凶煞，损耗流年财帛疾厄。”
+            4. 🛋️ 【顺势化解 · 拂拭明台】（免费化解法）：
+               - 结合照片，给出一个物理空间布局的调整方案（如清理、避开暗箭煞）。
+               - 【强制任务】：强烈建议用户在调整后的位置摆放寻常可见的【{free_item['name']}】，并用风水原理解释它（{free_item['desc']}）如何改变了气口。
             5. 🔮 【天机预警】：
-               - 详细描述如果不进一步布阵，流年大运将如何受损。
+               - 详细描述若不进一步布阵，流年大运将如何受凶星反扑。
                - 结尾抛出悬念：“然天无绝人之路，唯有布下夺天地造化之大阵，以重宝法器镇守阵眼……”（戛然而止，绝不说出具体法器）。
             """
             
@@ -219,12 +226,11 @@ def main():
             st.warning("⚠️ 天机至此，免费推演已尽。若觉运势凝滞，求治本之法，在乎引气布阵。")
             st.button("💰 支付 ￥4.99 解锁《万字秘卷：全息布阵真诀与法器落位图》", use_container_width=True)
             
-            # ================= 【修改点 2】：万字秘卷扩容版 (绝无空格缩进！) =================
+            # ================= 付费秘籍区 (HTML 绝对顶格) =================
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("---")
             st.markdown("<p style='text-align:center; color:#888; font-size:12px;'>⬇️ 以下为模拟用户支付 4.99 元后解锁的【阵法长卷】 ⬇️</p>", unsafe_allow_html=True)
             
-            # HTML 代码块：必须顶格写！
             html_content = f"""
 <div style="background-color: #FAF8F2; padding: 40px; border: 1px solid #E3DBCB; border-radius: 4px; box-shadow: inset 0 0 30px rgba(0,0,0,0.03);">
 <h2 style='text-align:center; color:#2C3E50; margin-bottom: 40px; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; font-family:"STSong", serif;'>📜 秘传真诀：【{selected_array}】</h2>
