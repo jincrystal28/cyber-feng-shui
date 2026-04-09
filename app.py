@@ -261,7 +261,16 @@ def main():
             st.markdown(html_content, unsafe_allow_html=True)
 
         except Exception as e:
-            st.error(f"灵力中断：{str(e)}")
+            error_msg = str(e)
+            if "503" in error_msg or "high demand" in error_msg:
+                status.update(label="⚠️ 天庭算力拥挤，请稍候...", state="error", expanded=False)
+                st.warning("🏮 **【宗师提示】：** 此时求卦者甚多，天机拥堵，灵力传输受阻。请林工稍待片刻（约半分钟），再次点击【开启天机排盘】即可重连地脉。")
+            elif "API_KEY" in error_msg or "401" in error_msg:
+                status.update(label="❌ 灵力源断绝", state="error", expanded=False)
+                st.error("⚠️ 灵力密匙（API Key）有误或已失效，请在侧边栏重新核对。")
+            else:
+                status.update(label="❌ 阵法溃散", state="error", expanded=False)
+                st.error(f"⚠️ 灵力运转出现未知岔路，请重试。界外乱码：{error_msg}")
 
 if __name__ == "__main__":
     main()
