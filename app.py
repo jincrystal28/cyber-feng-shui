@@ -116,7 +116,7 @@ def main():
     st.subheader("📸 贰 · 观形辨气 (多图与户型)")
     col1, col2 = st.columns(2)
     with col1: win_files = st.file_uploader("📸 窗外景观 (可多张)", accept_multiple_files=True, key="win")
-    with col2: in_files = st.file_uploader("📜 室内实景或户型图", accept_multiple_files=True, key="in")
+    with col2: in_files = st.file_uploader("📜 室内实景或户型平面图", accept_multiple_files=True, key="in")
 
     total_files = len(win_files) + len(in_files)
     st.markdown("---")
@@ -129,9 +129,9 @@ def main():
         {"name": "工业级金属直尺", "title": "【庚金断刃 / 催化】", "kw": "不锈钢 直尺 加厚", "place": "桌面或抽屉底层", "desc": "五行之中，庚金最为肃杀刚硬。此处木气繁杂，易生纠葛。以此金尺压阵，取“快刀斩乱麻”之意，斩断晦暗气机，助主人行事果决，避退小人。"}
     ]
     pros = [
-        {"name": "纯铜实心小葫芦", "title": "【太极阵眼 / 核心】", "kw": "纯铜 葫芦 挂件", "place": "直冲之气口（门把手或窗户正上）", "desc": "葫芦形似太极，肚大口小，乃道家收邪化病之上品法器。纯铜材质属重金，专泄五黄二黑土煞。悬于此阵眼处，可强力吞噬侵入宅内的病气与凶煞，只进不出，镇守宅门安宁。"},
-        {"name": "仿古纯铜五帝钱", "title": "【帝威阵眼 / 核心】", "kw": "五帝钱 挂件 纯铜", "place": "横梁下方或入户地垫底部", "desc": "五帝钱汇聚前朝盛世之天、地、人三才之气，至阳至刚。以此物为核心阵眼，可凭千古帝王之威，强力破除横梁压顶之上压，阻挡外来路冲之锐气，保家宅四平八稳。"},
-        {"name": "纯铜镇宅小貔貅", "title": "【吞金阵眼 / 核心】", "kw": "纯铜 貔貅 摆件", "place": "阵局前方，头朝门外或窗外", "desc": "貔貅乃上古吞金瑞兽，以重铜铸其形，杀气隐现。将其置于此位，不仅能迎击并咬碎对面刺来的尖角煞，更能以阵眼之力大开财门，广纳八方明财暗财。"}
+        {"name": "纯铜实心小葫芦", "title": "【太极阵眼 / 核心】", "kw": "纯铜 葫芦 挂件", "place": "煞气直冲之气口（门把手或窗户上）", "desc": "葫芦形似太极，肚大口小，乃道家收邪化病之上品法器。纯铜材质属重金，专泄五黄二黑土煞。悬于此阵眼处，可强力吞噬病气与凶煞，只进不出，镇守安宁。"},
+        {"name": "仿古纯铜五帝钱", "title": "【帝威阵眼 / 核心】", "kw": "五帝钱 挂件 纯铜", "place": "横梁下方或入户门地垫底部", "desc": "五帝钱汇聚前朝盛世之三才之气，至阳至刚。以此物为核心阵眼，可凭千古帝王之威，强力破除横梁压顶之上压，阻挡外来路冲之锐气，保家宅四平八稳。"},
+        {"name": "纯铜镇宅小貔貅", "title": "【吞金阵眼 / 核心】", "kw": "纯铜 貔貅 摆件", "place": "阵局前方，头朝冲煞之门或窗外", "desc": "貔貅乃上古吞金瑞兽，以重铜铸其形，杀气隐现。将其置于此位，不仅能迎击并咬碎对面刺来的尖角煞，更能以阵眼之力大开财门，广纳八方明财暗财。"}
     ]
     
     free_item = random.choice(mundane)
@@ -149,7 +149,7 @@ def main():
         with st.status("🔮 正在开启风水大阵...", expanded=True) as status:
             st.write("📡 融合外围地脉与实境法相...")
             time.sleep(1.0)
-            st.write("🧭 正在挂载紫微九星算理引擎，进行流年定位...")
+            st.write("🧭 挂载九星引擎，辩证阴阳吉凶...")
             time.sleep(1.0)
             status.update(label="✅ 九宫飞星推演完毕，天机显露...", state="complete", expanded=False)
 
@@ -158,35 +158,36 @@ def main():
         full_report = ""
 
         try:
-            # 挂载风水核心算理引擎
             flying_stars_data = CyberCompass.calculate_flying_stars()
             stars_str = "\n".join([f"{k}: {v}" for k, v in flying_stars_data['stars'].items()])
             current_year = flying_stars_data['year']
 
             client = OpenAI(api_key=api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
             
-            # 【终极约束 Prompt】：引入算理引擎数据，强制关联流年
+            # 【修改点 1】：强制阴阳并济，强制识别户型图
             master_prompt = f"""
-            # Role: 隐世堪舆宗师 (精通玄空飞星、理气算数)
-            你的诊断必须充满深厚的传统国学玄学底蕴，排版如古籍长卷。你必须严格依据提供的【硬性算理数据】进行推演，严禁凭空捏造吉凶方位。
+            # Role: 隐世堪舆宗师 (精通峦头理气，遵循阴阳辩证之法)
+            你的诊断必须充满深厚的国学底蕴，排版如古籍长卷。你必须遵循万物皆有阴阳的“客观辩证”原则：对于宏观坐标和微观图片，都必须既点出吉相，又指出隐患。严禁使用科学或心理学词汇。
 
-            # 硬性算理数据 (不可辩驳的客观事实):
+            # 硬性算理数据:
             1. 地脉雷达信息：\n{geo_context}
             2. 【{current_year}年 九宫飞星盘】：\n{stars_str}
 
             # Output Structure (总字数不少于1200字):
-            1. 📜 【禅语定势】：写一首玄妙的七言绝句，总括此局。
-            2. 🌟 【藏风聚气 · 寻龙点穴】（强制先扬）：结合雷达数据，用纯正风水术语大肆赞美此地的天地灵气与地脉福泽。
-            3. ⚠️ 【流年暗煞 · 形峦点拨】（强制约束）：
-               - 你必须查看【九宫飞星盘】中，“五黄廉贞星（极凶）”或“二黑巨门星（大凶）”今年落在了哪个方位。
-               - 死死盯住用户上传的照片，指出照片中的环境硬伤（如杂物淤滞、尖角冲射）。
-               - 必须将照片中的硬伤，与今年的飞星大煞结合起来恐吓用户。例如：“观照片中此处杂乱，若恰逢今年五黄星降临此方，必引动凶煞，损耗流年财帛疾厄。”
+            1. 📜 【禅语定势】：写一首玄妙的七言绝句，点出此局之吉凶交织。
+            2. 🌍 【峦头理气 · 宏观大局】（雷达辩证）：
+               - 先断吉：结合雷达数据，用风水术语大肆赞美周边地脉带来的福泽（如得水藏风、文昌高照、虚水引气）。
+               - 后断凶：结合雷达数据或飞星盘，指出周遭潜藏的暗煞（如某方位的二黑五黄，或官威独阴之压迫）。
+            3. 🔍 【微观法相 · 图内玄机】（图片辩证，必须区分户型图与实景！）：
+               - 必须明确指出你看到的是【户型平面图】还是【室内/外实景图】。
+               - 先夸赞吉相：若为【户型图】，夸赞其格局方正或某方位得气；若为【实景图】，夸赞其采光通透或明堂开阔。
+               - 再严厉点出隐患：若为【户型图】，死盯布局指出硬伤（如缺角、穿堂煞、门冲）；若为【实景图】，指出煞气（如杂物淤滞、横梁压顶、尖角冲射）。必须用“五行相克”解释其对命理的损耗。
             4. 🛋️ 【顺势化解 · 拂拭明台】（免费化解法）：
-               - 结合照片，给出一个物理空间布局的调整方案（如清理、避开暗箭煞）。
-               - 【强制任务】：强烈建议用户在调整后的位置摆放寻常可见的【{free_item['name']}】，并用风水原理解释它（{free_item['desc']}）如何改变了气口。
+               - 给出一个免费的物理空间布局调整方案（如清理特定淤滞区域、避开冲射、调整朝向）。
+               - 【强制任务】：强烈建议在调整后的位置摆放寻常可见的【{free_item['name']}】，并用风水原理解释它（{free_item['desc']}）如何改变了气口。
             5. 🔮 【天机预警】：
-               - 详细描述若不进一步布阵，流年大运将如何受凶星反扑。
-               - 结尾抛出悬念：“然天无绝人之路，唯有布下夺天地造化之大阵，以重宝法器镇守阵眼……”（戛然而止，绝不说出具体法器）。
+               - 描述若不进一步化解，流年大运将受凶星反扑。
+               - 结尾抛出悬念：“然天无绝人之路，唯有布下夺天地造化之大阵，以法器镇守阵眼……”（戛然而止，绝不说出具体法器）。
             """
             
             content_list = [{"type": "text", "text": master_prompt}]
@@ -224,9 +225,9 @@ def main():
             # ================= 变现钩子 =================
             st.markdown("---")
             st.warning("⚠️ 天机至此，免费推演已尽。若觉运势凝滞，求治本之法，在乎引气布阵。")
-            st.button("💰 支付 ￥4.99 解锁《万字秘卷：全息布阵真诀与法器落位图》", use_container_width=True)
+            st.button("💰 支付 ￥4.99 解锁《秘卷：全息布阵真诀与法器落位图》", use_container_width=True)
             
-            # ================= 付费秘籍区 (HTML 绝对顶格) =================
+            # ================= 【修改点 2】：化繁为简的秘卷区 (无罗盘定穴，无焚香) =================
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("---")
             st.markdown("<p style='text-align:center; color:#888; font-size:12px;'>⬇️ 以下为模拟用户支付 4.99 元后解锁的【阵法长卷】 ⬇️</p>", unsafe_allow_html=True)
@@ -236,22 +237,16 @@ def main():
 <h2 style='text-align:center; color:#2C3E50; margin-bottom: 40px; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; font-family:"STSong", serif;'>📜 秘传真诀：【{selected_array}】</h2>
 
 <span class='array-title'>☯️ 阵理玄机与天地同频</span>
-<p class='array-text'>天地之道，损有余而补不足。观贵宅之气运交锋，明堂虽有生气，然暗煞环伺，寻常之物已难承其重。此【{selected_array}】乃贫道夜观星象，结合贵宅地脉与室内理气，耗费心血推演而出的无上法门。此阵之妙，不在于物之贵贱，而在于“一主一辅，阴阳交泰”。借特定法器之五行灵力，锁住明堂之财，化解暗处之煞。布下此阵，犹如为家宅披上一层无形之金钟罩，外邪不入，内气不泄，乃是逆天改命之基。</p>
-
-<span class='array-title'>🧭 寻龙定穴：堪定气场中枢</span>
-<p class='array-text'>布阵之首要，在于定穴。法器若错位寸分，则失之千里。请于正午时分，阳气最盛之时，立于宅内中心，手持罗盘或指南针，寻出正南离火与正北坎水之交汇线。此线乃家宅之“脊骨”。感受气流微动之处，便是我等即将落下阵眼的重中之重。若遇迷惘，只需谨记贫道下方赐予的落位口诀，依言照做，万无一失。</p>
+<p class='array-text'>天地之道，损有余而补不足。观贵宅之气运交锋，明堂虽有生气，然暗煞环伺，寻常之物已难承其重。此【{selected_array}】乃贫道结合贵宅地脉与流年理气，推演而出的化煞生财法门。阵法之妙，在于“一主一辅，阴阳交泰”。借特定法器之五行灵力，锁住财运，化解暗煞。布下此阵，犹如为家宅披上一层无形之铠甲，外邪不入，内气不泄。</p>
 
 <span class='array-title'>⚔️ 第一步：定海神针，立主阵眼</span>
-<p class='array-text'>要破此局，首当其冲需以重宝镇压核心凶位。贫道推演，唯有以 <a href="https://s.taobao.com/search?q={paid_main['kw']}" target="_blank" style="color:#B84B4B; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #B84B4B; padding-bottom: 2px; font-size:18px;">{paid_main['name']}</a> 作为本局之主阵眼，方能镇伏群魔。此宝物非同小可，{paid_main['desc']} 此物一出，万邪辟易。此主阵眼之<b>【落位口诀】为：须端正安放于{paid_main['place']}</b>，切勿偏倚，使其正面迎向煞气来临之方。</p>
+<p class='array-text'>要破此局，首当其冲需以重宝镇压核心凶位。贫道推演，需以 <a href="https://s.taobao.com/search?q={paid_main['kw']}" target="_blank" style="color:#B84B4B; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #B84B4B; padding-bottom: 2px; font-size:18px;">{paid_main['name']}</a> 作为本局之主阵眼。此宝物非同小可，{paid_main['desc']} 此主阵眼之<b>【落位口诀】为：须端正安放于{paid_main['place']}</b>，切勿偏倚，使其正面迎向煞气来临之方。一物镇宅，万邪辟易。</p>
 
 <span class='array-title'>🌿 第二步：五行相济，布辅阵眼</span>
-<p class='array-text'>孤阳不生，独阴不长。主阵既立，气场刚烈，必以五行相生之物辅佐，方能令气场流转不息，化刚为柔，生生不绝。请务必寻得一 <a href="https://s.taobao.com/search?q={paid_aux['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px; font-size:18px;">{paid_aux['name']}</a>，作为辅阵之眼。此物之精妙在于：{paid_aux['desc']} 辅器之<b>【落位口诀】为：妥善安置于{paid_aux['place']}</b>。双器齐鸣，一主杀伐镇煞，一主生发生财，阴阳调和之境乃成。</p>
+<p class='array-text'>孤阳不生，独阴不长。主阵既立，气场刚烈，需以五行相生之物辅佐，方能令气场流转不息，生生不绝。请寻得一 <a href="https://s.taobao.com/search?q={paid_aux['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px; font-size:18px;">{paid_aux['name']}</a>，作为辅阵之眼。此物之精妙在于：{paid_aux['desc']} 辅器之<b>【落位口诀】为：妥善安置于{paid_aux['place']}</b>。双器齐鸣，一主杀伐镇煞，一主生发生财，阴阳调和之大境乃成。</p>
 
-<span class='array-title'>🕯️ 阵眼加持：净手焚香仪轨</span>
-<p class='array-text'>法器迎回，切勿草率摆放。凡灵物皆需认主。请择一晴朗之日，辰时（早7点至9点）最佳。先以清水净手，若有条件，可点燃一炷沉香或檀香，绕法器三周，以香火之气洗去其凡尘沾染之气。心中默念：“天地自然，秽气分散，八方威神，使我自然。阵起！”随后，双手捧起法器，依前文口诀稳稳落下，安放后三日内切勿轻易挪动。</p>
-
-<span class='array-title'>⏳ 破局断言：吉相显露之期</span>
-<p class='array-text'>依此秘卷布阵，阵成之日，天地气场必生感应。快则三日，慢则七七四十九日内，您必感室内气场澄澈，呼吸顺畅，夜晚睡眠深沉，心神不再无故焦躁。流年之大煞自此冰消瓦解，曾经阻滞之事业、财源，将循此清灵之气如活水般涌来。所谓顺天应人，尽力而为，余下皆是天意。福生无量天尊，贫道在此静候佳音。</p>
+<span class='array-title'>⏳ 第三步：破局断言</span>
+<p class='array-text'>请择一吉日良辰，将法器依阵位依次落下。心诚则灵，归位之日起，三日至七日内，您必感室内气场澄澈，心神安宁。流年大煞自此冰消瓦解，曾经阻滞之事业、财源，将循此清灵之气如活水般涌来。顺天应人，福生无量天尊，贫道在此静候佳音。</p>
 </div>
 """
             st.markdown(html_content, unsafe_allow_html=True)
