@@ -61,22 +61,22 @@ def scan_nearby_fengshui_pois(lat, lon, radius=1000):
             highway = tags.get('highway', '')
             place = tags.get('place', '')
             
-            # 雷达返回词汇也进行了“科学化”包装
+          # ================= 东方理气版：抛弃硬科幻，回归建筑生态与气机 =================
             if not name:
-                if highway: name = "气流剪切带(道路)"
-                elif natural in ['peak', 'hill']: name = "实体稳定面(山丘)"
-                elif place: name = "人居拓扑节点"
+                if highway: name = "动线交织之径(道路)"
+                elif natural in ['peak', 'hill']: name = "形峦稳固之基(山丘)"
+                elif place: name = "人居理气聚落"
                 else: continue
                 
-            if amenity in ['hospital', 'clinic']: pois.append(f"{name}(低频共振区)")
-            elif amenity in ['police', 'courthouse']: pois.append(f"{name}(单极磁场高压区)")
-            elif amenity == 'bank': pois.append(f"{name}(能量富集节点)")
-            elif amenity == 'school': pois.append(f"{name}(脑波活跃中枢)")
-            elif natural == 'water' or tags.get('waterway'): pois.append(f"{name}(温湿流体闭环)")
-            elif natural in ['peak', 'hill']: pois.append(f"{name}(背部屏障)")
-            elif highway: pois.append(f"{name}(动能逃逸通道)")
-            elif place: pois.append(f"{name}(拓扑基点)")
-            else: pois.append(f"{name}(频段锚点)")
+            if amenity in ['hospital', 'clinic']: pois.append(f"{name}(气机沉郁之区)")  # 替代: 低频共振/阴煞
+            elif amenity in ['police', 'courthouse']: pois.append(f"{name}(气势威压之地)")  # 替代: 单极高压/孤阳煞
+            elif amenity == 'bank': pois.append(f"{name}(资源汇聚之眼)")  # 替代: 能量富集/财气眼
+            elif amenity == 'school': pois.append(f"{name}(心智启迪之所)")  # 替代: 脑波活跃/文昌地
+            elif natural == 'water' or tags.get('waterway'): pois.append(f"{name}(水气环抱之局)")  # 替代: 温湿闭环/界水
+            elif natural in ['peak', 'hill']: pois.append(f"{name}(背靠稳固之屏)")  # 替代: 背部屏障/靠山
+            elif highway: pois.append(f"{name}(气流冲射之带)")  # 替代: 动能逃逸/引气虚水
+            elif place: pois.append(f"{name}(生机盘桓之枢)")  # 替代: 拓扑基点/人丁穴
+            else: pois.append(f"{name}(空间理气节点)")  # 替代: 频段锚点/阵场节点
             
         return list(set(pois))[:15]
     except Exception:
