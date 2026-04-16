@@ -35,7 +35,8 @@ def encode_image(uploaded_file):
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def scan_nearby_fengshui_pois(lat, lon, radius=1000):
-    overpass_url = "[http://overpass-api.de/api/interpreter](http://overpass-api.de/api/interpreter)"
+    # 修复点 1：还原纯净网址
+    overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
     [out:json][timeout:15];
     (
@@ -166,7 +167,8 @@ def main():
             stars_str = "\n".join([f"{k}: {v}" for k, v in flying_stars_data['stars'].items()])
             current_year = flying_stars_data['year']
 
-            client = OpenAI(api_key=api_key, base_url="[https://generativelanguage.googleapis.com/v1beta/openai/](https://generativelanguage.googleapis.com/v1beta/openai/)")
+            # 修复点 2：还原纯净网址
+            client = OpenAI(api_key=api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
             
             # 【终极防崩坏 Prompt】：东方理气 + 严格排版禁令 + 词汇限制
             master_prompt = f"""
@@ -229,7 +231,7 @@ def main():
                     <p style="margin:5px 0 0 0; font-size:13px; color:#666;">置于{free_item['place']}，以达气机柔化之效。</p>
                 </div>
                 <div>
-                    <a href="https://s.taobao.com/search?q={free_item['kw']}" target="_blank" style="text-decoration:none;">
+                    <a href="[https://s.taobao.com/search?q=](https://s.taobao.com/search?q=){free_item['kw']}" target="_blank" style="text-decoration:none;">
                         <button style="background-color:#F9F6F0; color:#4A6E62; border:1px solid #5F8B7D; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:bold;">🔍 寻觅此物</button>
                     </a>
                 </div>
@@ -254,10 +256,10 @@ def main():
 <p class='array-text'>空间之妙，贵在“乘气”。天地物理，损有余而补不足。观贵宅之环境势能交锋，视野虽有生机，然暗处经络畸变，若不加以引导，则决策力易散，神经紧绷。此【{selected_array}】乃贫道结合地貌引力与本流年理气，独家推演而出的空间调平法门。此架构不尚奢华，重在“一主一辅，双极稳态，气机牵引”。借特定介质之五行物理属性，辅以精准拓扑落位，即可锁住正向反馈循环，化解高频冲射源。部署此系统，犹如为居所披上一层无形之生态屏障，外扰不入，内能不泄。</p>
 
 <span class='array-title'>⚔️ 核心中枢：定海神针，立主能量锚点</span>
-<p class='array-text'>要破此局，首需以高密度介质镇压核心高熵位，扼住畸变气流之咽喉。贫道推演，需以 <a href="https://s.taobao.com/search?q={paid_main['kw']}" target="_blank" style="color:#B84B4B; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #B84B4B; padding-bottom: 2px; font-size:18px;">{paid_main['name']}</a> 作为本局之主锚点。此物非同小可，{paid_main['desc']} 此主锚点之<b>【落位准则】极为严苛：须端正安放于{paid_main['place']}</b>。安放时切勿偏倚，务必使其正面迎向气流剪切来临之方。一物镇宅，犹如高频谐振器，护佑基底安宁。</p>
+<p class='array-text'>要破此局，首需以高密度介质镇压核心高熵位，扼住畸变气流之咽喉。贫道推演，需以 <a href="[https://s.taobao.com/search?q=](https://s.taobao.com/search?q=){paid_main['kw']}" target="_blank" style="color:#B84B4B; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #B84B4B; padding-bottom: 2px; font-size:18px;">{paid_main['name']}</a> 作为本局之主锚点。此物非同小可，{paid_main['desc']} 此主锚点之<b>【落位准则】极为严苛：须端正安放于{paid_main['place']}</b>。安放时切勿偏倚，务必使其正面迎向气流剪切来临之方。一物镇宅，犹如高频谐振器，护佑基底安宁。</p>
 
 <span class='array-title'>🌿 生生不息：双极相济，布辅振中枢</span>
-<p class='array-text'>孤阳不生，独阴不长。主节点既立，气机刚烈，若无辅佐则易生过极之象。需以相生波段之物从旁策应，方能令势能流转不息，化刚为柔。请务必寻得一 <a href="https://s.taobao.com/search?q={paid_aux['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px; font-size:18px;">{paid_aux['name']}</a>，作为辅振之眼。此物之精妙在于：{paid_aux['desc']} 辅器之<b>【落位准则】为：妥善安置于{paid_aux['place']}</b>。双节点齐鸣，一主吸收降噪，一主生发引流，一刚一柔，双极生态稳态乃成。</p>
+<p class='array-text'>孤阳不生，独阴不长。主节点既立，气机刚烈，若无辅佐则易生过极之象。需以相生波段之物从旁策应，方能令势能流转不息，化刚为柔。请务必寻得一 <a href="[https://s.taobao.com/search?q=](https://s.taobao.com/search?q=){paid_aux['kw']}" target="_blank" style="color:#4A6E62; font-weight:bold; text-decoration:none; border-bottom: 1px dashed #4A6E62; padding-bottom: 2px; font-size:18px;">{paid_aux['name']}</a>，作为辅振之眼。此物之精妙在于：{paid_aux['desc']} 辅器之<b>【落位准则】为：妥善安置于{paid_aux['place']}</b>。双节点齐鸣，一主吸收降噪，一主生发引流，一刚一柔，双极生态稳态乃成。</p>
 
 <span class='array-title'>✨ 启动心法：借取天时，清净明台</span>
 <p class='array-text'>大道至简，无需繁缛仪式，然“借取天时与环境之净”不可或缺。请择一晴朗之日，于辰时或巳时（早7点至11点，阳气上升、心智活跃之际）进行部署。落位前，务必用净水将承载面擦拭得一尘不染，消除多余灰尘带来之微观漫反射，此谓之“清净明台”。安放介质时，需心平气和，依前文准则稳稳落下。一旦落位，气机即刻流转。</p>
